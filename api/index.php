@@ -27,11 +27,16 @@ foreach ($pedidos as $p) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             min-height: 100vh;
             background: linear-gradient(135deg, #111827, #1e293b, #0f766e);
             font-family: 'Segoe UI', sans-serif;
             color: #fff;
+            overflow-x: hidden;
         }
 
         .main-container {
@@ -78,7 +83,8 @@ foreach ($pedidos as $p) {
             color: #d1d5db;
         }
 
-        .form-card, .table-card {
+        .form-card,
+        .table-card {
             background: #ffffff;
             color: #111827;
             border-radius: 25px;
@@ -92,7 +98,8 @@ foreach ($pedidos as $p) {
             color: #0f172a;
         }
 
-        .form-control, .form-select {
+        .form-control,
+        .form-select {
             border-radius: 14px;
             padding: 11px;
         }
@@ -123,26 +130,11 @@ foreach ($pedidos as $p) {
 
         .table thead th {
             padding: 14px;
+            white-space: nowrap;
         }
 
         .table tbody td {
             padding: 12px;
-        }
-
-        .badge-pendiente {
-            background: #f59e0b;
-        }
-
-        .badge-proceso {
-            background: #3b82f6;
-        }
-
-        .badge-entregado {
-            background: #22c55e;
-        }
-
-        .badge-cancelado {
-            background: #ef4444;
         }
 
         .btn-update {
@@ -161,7 +153,8 @@ foreach ($pedidos as $p) {
             padding: 8px 12px;
         }
 
-        .btn-update:hover, .btn-delete:hover {
+        .btn-update:hover,
+        .btn-delete:hover {
             opacity: 0.85;
             color: white;
         }
@@ -173,19 +166,180 @@ foreach ($pedidos as $p) {
         .price-box {
             font-weight: 700;
             color: #0f766e;
+            white-space: nowrap;
         }
 
-        @media (max-width: 768px) {
+        .empty-row {
+            padding: 25px !important;
+        }
+
+        /* TABLET */
+        @media (max-width: 992px) {
             .main-container {
-                padding: 15px;
+                padding: 22px;
             }
 
             .header-title {
-                font-size: 24px;
+                font-size: 28px;
             }
 
             .table-card {
                 overflow-x: auto;
+            }
+        }
+
+        /* CELULAR: la tabla se convierte en tarjetas */
+        @media (max-width: 768px) {
+            body {
+                background: linear-gradient(160deg, #111827, #164e63, #0f766e);
+            }
+
+            .main-container {
+                padding: 12px;
+            }
+
+            .header-box {
+                padding: 22px;
+                border-radius: 20px;
+                text-align: center;
+            }
+
+            .header-title {
+                font-size: 24px;
+                line-height: 1.2;
+            }
+
+            .header-subtitle {
+                font-size: 14px;
+            }
+
+            .stat-card {
+                text-align: center;
+                padding: 18px;
+                border-radius: 18px;
+            }
+
+            .stat-card h3 {
+                font-size: 25px;
+            }
+
+            .form-card,
+            .table-card {
+                padding: 18px;
+                border-radius: 20px;
+            }
+
+            .form-title {
+                text-align: center;
+                font-size: 20px;
+            }
+
+            .table-responsive {
+                overflow-x: visible;
+            }
+
+            table,
+            thead,
+            tbody,
+            th,
+            td,
+            tr {
+                display: block;
+                width: 100%;
+            }
+
+            thead {
+                display: none;
+            }
+
+            tbody tr {
+                background: #ffffff;
+                margin-bottom: 18px;
+                border-radius: 20px;
+                padding: 15px;
+                box-shadow: 0 8px 22px rgba(0,0,0,0.14);
+                border: 1px solid #e5e7eb;
+            }
+
+            tbody td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 12px;
+                border: none;
+                padding: 10px 0 !important;
+            }
+
+            tbody td::before {
+                content: attr(data-label);
+                font-weight: 800;
+                color: #0f172a;
+                min-width: 95px;
+            }
+
+            tbody td input,
+            tbody td select {
+                width: 65%;
+                font-size: 14px;
+            }
+
+            .price-box {
+                font-size: 16px;
+                font-weight: 800;
+            }
+
+            .acciones {
+                display: block !important;
+                padding-top: 15px !important;
+            }
+
+            .acciones::before {
+                display: none;
+            }
+
+            .acciones .btn-update,
+            .acciones .btn-delete {
+                width: 100%;
+                margin-top: 8px;
+                padding: 11px;
+            }
+
+            .acciones form {
+                width: 100%;
+            }
+
+            .empty-row {
+                text-align: center;
+            }
+        }
+
+        /* CELULAR PEQUEÑO */
+        @media (max-width: 420px) {
+            .header-title {
+                font-size: 21px;
+            }
+
+            .header-subtitle {
+                font-size: 13px;
+            }
+
+            .form-card,
+            .table-card {
+                padding: 14px;
+            }
+
+            tbody td {
+                display: block;
+            }
+
+            tbody td::before {
+                display: block;
+                margin-bottom: 6px;
+            }
+
+            tbody td input,
+            tbody td select {
+                width: 100%;
             }
         }
     </style>
@@ -304,65 +458,65 @@ foreach ($pedidos as $p) {
                         <tbody>
                         <?php if (count($pedidos) > 0): ?>
                             <?php foreach ($pedidos as $pedido): ?>
+                                <?php $formId = "form-update-" . $pedido["id_pedido"]; ?>
                                 <tr>
-                                    <form action="actualizar.php" method="POST">
-                                        <td>
-                                            <?php echo $pedido["id_pedido"]; ?>
+                                    <td data-label="ID">
+                                        <?php echo $pedido["id_pedido"]; ?>
+                                        <input form="<?php echo $formId; ?>" type="hidden" name="id_pedido" value="<?php echo $pedido["id_pedido"]; ?>">
+                                    </td>
+
+                                    <td data-label="Cliente">
+                                        <input form="<?php echo $formId; ?>" type="text" name="cliente" class="form-control small-input"
+                                               value="<?php echo htmlspecialchars($pedido["cliente"]); ?>" required>
+                                    </td>
+
+                                    <td data-label="Producto">
+                                        <input form="<?php echo $formId; ?>" type="text" name="producto" class="form-control small-input"
+                                               value="<?php echo htmlspecialchars($pedido["producto"]); ?>" required>
+                                    </td>
+
+                                    <td data-label="Precio">
+                                        <input form="<?php echo $formId; ?>" type="number" name="precio" step="0.01" class="form-control small-input"
+                                               value="<?php echo $pedido["precio"]; ?>" required>
+                                    </td>
+
+                                    <td data-label="Cantidad">
+                                        <input form="<?php echo $formId; ?>" type="number" name="cantidad" class="form-control small-input"
+                                               value="<?php echo $pedido["cantidad"]; ?>" min="1" required>
+                                    </td>
+
+                                    <td data-label="Estado">
+                                        <select form="<?php echo $formId; ?>" name="estado" class="form-select small-input" required>
+                                            <option value="Pendiente" <?php if($pedido["estado"]=="Pendiente") echo "selected"; ?>>Pendiente</option>
+                                            <option value="En proceso" <?php if($pedido["estado"]=="En proceso") echo "selected"; ?>>En proceso</option>
+                                            <option value="Entregado" <?php if($pedido["estado"]=="Entregado") echo "selected"; ?>>Entregado</option>
+                                            <option value="Cancelado" <?php if($pedido["estado"]=="Cancelado") echo "selected"; ?>>Cancelado</option>
+                                        </select>
+                                    </td>
+
+                                    <td data-label="Total" class="price-box">
+                                        S/ <?php echo number_format($pedido["precio"] * $pedido["cantidad"], 2); ?>
+                                    </td>
+
+                                    <td class="acciones">
+                                        <form id="<?php echo $formId; ?>" action="actualizar.php" method="POST"></form>
+
+                                        <button type="submit" form="<?php echo $formId; ?>" class="btn btn-update">
+                                            Actualizar
+                                        </button>
+
+                                        <form action="eliminar.php" method="POST" onsubmit="return confirm('¿Seguro que deseas eliminar este pedido?');">
                                             <input type="hidden" name="id_pedido" value="<?php echo $pedido["id_pedido"]; ?>">
-                                        </td>
-
-                                        <td>
-                                            <input type="text" name="cliente" class="form-control small-input"
-                                                   value="<?php echo htmlspecialchars($pedido["cliente"]); ?>">
-                                        </td>
-
-                                        <td>
-                                            <input type="text" name="producto" class="form-control small-input"
-                                                   value="<?php echo htmlspecialchars($pedido["producto"]); ?>">
-                                        </td>
-
-                                        <td>
-                                            <input type="number" name="precio" step="0.01" class="form-control small-input"
-                                                   value="<?php echo $pedido["precio"]; ?>">
-                                        </td>
-
-                                        <td>
-                                            <input type="number" name="cantidad" class="form-control small-input"
-                                                   value="<?php echo $pedido["cantidad"]; ?>">
-                                        </td>
-
-                                        <td>
-                                            <select name="estado" class="form-select small-input">
-                                                <option value="Pendiente" <?php if($pedido["estado"]=="Pendiente") echo "selected"; ?>>Pendiente</option>
-                                                <option value="En proceso" <?php if($pedido["estado"]=="En proceso") echo "selected"; ?>>En proceso</option>
-                                                <option value="Entregado" <?php if($pedido["estado"]=="Entregado") echo "selected"; ?>>Entregado</option>
-                                                <option value="Cancelado" <?php if($pedido["estado"]=="Cancelado") echo "selected"; ?>>Cancelado</option>
-                                            </select>
-                                        </td>
-
-                                        <td class="price-box">
-                                            S/ <?php echo number_format($pedido["precio"] * $pedido["cantidad"], 2); ?>
-                                        </td>
-
-                                        <td>
-                                            <button type="submit" class="btn btn-update mb-1">
-                                                Actualizar
+                                            <button type="submit" class="btn btn-delete">
+                                                Eliminar
                                             </button>
-                                    </form>
-
-                                            <form action="eliminar.php" method="POST" style="display:inline;">
-                                                <input type="hidden" name="id_pedido" value="<?php echo $pedido["id_pedido"]; ?>">
-                                                <button type="submit" class="btn btn-delete"
-                                                        onclick="return confirm('¿Seguro que deseas eliminar este pedido?');">
-                                                    Eliminar
-                                                </button>
-                                            </form>
-                                        </td>
+                                        </form>
+                                    </td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="8" class="text-center text-muted">
+                                <td colspan="8" class="text-center text-muted empty-row">
                                     No hay pedidos registrados todavía.
                                 </td>
                             </tr>
