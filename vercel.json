@@ -8,6 +8,7 @@
     { "src": "/guardar.php", "dest": "/api/guardar.php" },
     { "src": "/actualizar.php", "dest": "/api/actualizar.php" },
     { "src": "/eliminar.php", "dest": "/api/eliminar.php" },
+    { "src": "/editar.php", "dest": "/api/editar.php" },
     { "src": "/(.*)", "dest": "/api/index.php" }
   ]
 }

@@ -14,6 +14,21 @@ foreach ($pedidos as $p) {
         $pedidosPendientes++;
     }
 }
+
+function badgeEstado($estado) {
+    switch ($estado) {
+        case "Pendiente":
+            return "badge-pendiente";
+        case "En proceso":
+            return "badge-proceso";
+        case "Entregado":
+            return "badge-entregado";
+        case "Cancelado":
+            return "badge-cancelado";
+        default:
+            return "badge-secondary";
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -23,7 +38,6 @@ foreach ($pedidos as $p) {
     <title>Sistema de Pedidos</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
@@ -119,6 +133,21 @@ foreach ($pedidos as $p) {
             color: white;
         }
 
+        .btn-refresh {
+            background: #0f172a;
+            color: white;
+            border-radius: 14px;
+            padding: 10px 14px;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-refresh:hover {
+            background: #1e293b;
+            color: white;
+        }
+
         .table {
             vertical-align: middle;
         }
@@ -137,12 +166,40 @@ foreach ($pedidos as $p) {
             padding: 12px;
         }
 
-        .btn-update {
+        .badge-estado {
+            color: white;
+            padding: 8px 12px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 700;
+            display: inline-block;
+        }
+
+        .badge-pendiente {
+            background: #f59e0b;
+        }
+
+        .badge-proceso {
+            background: #2563eb;
+        }
+
+        .badge-entregado {
+            background: #16a34a;
+        }
+
+        .badge-cancelado {
+            background: #dc2626;
+        }
+
+        .btn-edit {
             background: #2563eb;
             color: white;
             border-radius: 12px;
             border: none;
             padding: 8px 12px;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 700;
         }
 
         .btn-delete {
@@ -151,20 +208,17 @@ foreach ($pedidos as $p) {
             border-radius: 12px;
             border: none;
             padding: 8px 12px;
+            font-weight: 700;
         }
 
-        .btn-update:hover,
+        .btn-edit:hover,
         .btn-delete:hover {
             opacity: 0.85;
             color: white;
         }
 
-        .small-input {
-            min-width: 100px;
-        }
-
         .price-box {
-            font-weight: 700;
+            font-weight: 800;
             color: #0f766e;
             white-space: nowrap;
         }
@@ -173,7 +227,19 @@ foreach ($pedidos as $p) {
             padding: 25px !important;
         }
 
-        /* TABLET */
+        .acciones {
+            white-space: nowrap;
+        }
+
+        .acciones form {
+            display: inline-block;
+        }
+
+        .mensaje-alerta {
+            border-radius: 18px;
+            border: none;
+        }
+
         @media (max-width: 992px) {
             .main-container {
                 padding: 22px;
@@ -188,7 +254,6 @@ foreach ($pedidos as $p) {
             }
         }
 
-        /* CELULAR: la tabla se convierte en tarjetas */
         @media (max-width: 768px) {
             body {
                 background: linear-gradient(160deg, #111827, #164e63, #0f766e);
@@ -234,6 +299,15 @@ foreach ($pedidos as $p) {
                 font-size: 20px;
             }
 
+            .table-toolbar {
+                text-align: center;
+            }
+
+            .btn-refresh {
+                width: 100%;
+                margin-bottom: 12px;
+            }
+
             .table-responsive {
                 overflow-x: visible;
             }
@@ -277,34 +351,26 @@ foreach ($pedidos as $p) {
                 min-width: 95px;
             }
 
-            tbody td input,
-            tbody td select {
-                width: 65%;
-                font-size: 14px;
-            }
-
-            .price-box {
-                font-size: 16px;
-                font-weight: 800;
-            }
-
             .acciones {
                 display: block !important;
                 padding-top: 15px !important;
+                white-space: normal;
             }
 
             .acciones::before {
                 display: none;
             }
 
-            .acciones .btn-update,
+            .acciones .btn-edit,
             .acciones .btn-delete {
                 width: 100%;
                 margin-top: 8px;
                 padding: 11px;
+                text-align: center;
             }
 
             .acciones form {
+                display: block;
                 width: 100%;
             }
 
@@ -313,7 +379,6 @@ foreach ($pedidos as $p) {
             }
         }
 
-        /* CELULAR PEQUEÑO */
         @media (max-width: 420px) {
             .header-title {
                 font-size: 21px;
@@ -336,11 +401,6 @@ foreach ($pedidos as $p) {
                 display: block;
                 margin-bottom: 6px;
             }
-
-            tbody td input,
-            tbody td select {
-                width: 100%;
-            }
         }
     </style>
 </head>
@@ -354,7 +414,7 @@ foreach ($pedidos as $p) {
             <div class="col-md-8">
                 <h1 class="header-title">Sistema de Gestión de Pedidos</h1>
                 <p class="header-subtitle">
-                    Registra, controla, actualiza y elimina pedidos desde una interfaz moderna.
+                    Registra pedidos, actualiza la lista, edita datos en otra ventana y elimina pedidos específicos.
                 </p>
             </div>
             <div class="col-md-4 text-md-end mt-3 mt-md-0">
@@ -364,6 +424,12 @@ foreach ($pedidos as $p) {
             </div>
         </div>
     </div>
+
+    <?php if (isset($_GET["mensaje"])): ?>
+        <div class="alert alert-success mensaje-alerta mb-4">
+            <?php echo htmlspecialchars($_GET["mensaje"]); ?>
+        </div>
+    <?php endif; ?>
 
     <div class="row g-4 mb-4">
         <div class="col-md-4">
@@ -390,7 +456,6 @@ foreach ($pedidos as $p) {
 
     <div class="row g-4">
 
-        <!-- FORMULARIO -->
         <div class="col-lg-4">
             <div class="form-card">
                 <h4 class="form-title">Crear nuevo pedido</h4>
@@ -435,10 +500,12 @@ foreach ($pedidos as $p) {
             </div>
         </div>
 
-        <!-- TABLA -->
         <div class="col-lg-8">
             <div class="table-card">
-                <h4 class="form-title">Listado de pedidos</h4>
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2 table-toolbar">
+                    <h4 class="form-title mb-0">Listado de pedidos</h4>
+                    <a href="index.php" class="btn-refresh">Actualizar lista</a>
+                </div>
 
                 <div class="table-responsive">
                     <table class="table table-hover align-middle">
@@ -458,40 +525,31 @@ foreach ($pedidos as $p) {
                         <tbody>
                         <?php if (count($pedidos) > 0): ?>
                             <?php foreach ($pedidos as $pedido): ?>
-                                <?php $formId = "form-update-" . $pedido["id_pedido"]; ?>
                                 <tr>
                                     <td data-label="ID">
                                         <?php echo $pedido["id_pedido"]; ?>
-                                        <input form="<?php echo $formId; ?>" type="hidden" name="id_pedido" value="<?php echo $pedido["id_pedido"]; ?>">
                                     </td>
 
                                     <td data-label="Cliente">
-                                        <input form="<?php echo $formId; ?>" type="text" name="cliente" class="form-control small-input"
-                                               value="<?php echo htmlspecialchars($pedido["cliente"]); ?>" required>
+                                        <?php echo htmlspecialchars($pedido["cliente"]); ?>
                                     </td>
 
                                     <td data-label="Producto">
-                                        <input form="<?php echo $formId; ?>" type="text" name="producto" class="form-control small-input"
-                                               value="<?php echo htmlspecialchars($pedido["producto"]); ?>" required>
+                                        <?php echo htmlspecialchars($pedido["producto"]); ?>
                                     </td>
 
                                     <td data-label="Precio">
-                                        <input form="<?php echo $formId; ?>" type="number" name="precio" step="0.01" class="form-control small-input"
-                                               value="<?php echo $pedido["precio"]; ?>" required>
+                                        S/ <?php echo number_format($pedido["precio"], 2); ?>
                                     </td>
 
                                     <td data-label="Cantidad">
-                                        <input form="<?php echo $formId; ?>" type="number" name="cantidad" class="form-control small-input"
-                                               value="<?php echo $pedido["cantidad"]; ?>" min="1" required>
+                                        <?php echo $pedido["cantidad"]; ?>
                                     </td>
 
                                     <td data-label="Estado">
-                                        <select form="<?php echo $formId; ?>" name="estado" class="form-select small-input" required>
-                                            <option value="Pendiente" <?php if($pedido["estado"]=="Pendiente") echo "selected"; ?>>Pendiente</option>
-                                            <option value="En proceso" <?php if($pedido["estado"]=="En proceso") echo "selected"; ?>>En proceso</option>
-                                            <option value="Entregado" <?php if($pedido["estado"]=="Entregado") echo "selected"; ?>>Entregado</option>
-                                            <option value="Cancelado" <?php if($pedido["estado"]=="Cancelado") echo "selected"; ?>>Cancelado</option>
-                                        </select>
+                                        <span class="badge-estado <?php echo badgeEstado($pedido["estado"]); ?>">
+                                            <?php echo htmlspecialchars($pedido["estado"]); ?>
+                                        </span>
                                     </td>
 
                                     <td data-label="Total" class="price-box">
@@ -499,15 +557,13 @@ foreach ($pedidos as $p) {
                                     </td>
 
                                     <td class="acciones">
-                                        <form id="<?php echo $formId; ?>" action="actualizar.php" method="POST"></form>
-
-                                        <button type="submit" form="<?php echo $formId; ?>" class="btn btn-update">
-                                            Actualizar
-                                        </button>
+                                        <a href="editar.php?id=<?php echo $pedido["id_pedido"]; ?>" target="_blank" rel="noopener" class="btn-edit">
+                                            Editar
+                                        </a>
 
                                         <form action="eliminar.php" method="POST" onsubmit="return confirm('¿Seguro que deseas eliminar este pedido?');">
                                             <input type="hidden" name="id_pedido" value="<?php echo $pedido["id_pedido"]; ?>">
-                                            <button type="submit" class="btn btn-delete">
+                                            <button type="submit" class="btn-delete">
                                                 Eliminar
                                             </button>
                                         </form>
