@@ -1,26 +1,56 @@
 <?php
-// CONEXIÓN PARA VERCEL + TiDB CLOUD
-
 $host = getenv("DB_HOST");
 $puerto = getenv("DB_PORT");
 $bd = getenv("DB_NAME");
 $usuario = getenv("DB_USER");
 $password = getenv("DB_PASSWORD");
 
-// Validar si faltan variables
 if (!$host || !$puerto || !$bd || !$usuario || !$password) {
     die("Faltan variables de entorno en Vercel. Revisa DB_HOST, DB_PORT, DB_NAME, DB_USER y DB_PASSWORD.");
 }
 
+// Rutas comunes de certificados CA en servidores Linux/Vercel
+$caPaths = [
+    "/etc/ssl/certs/ca-certificates.crt",
+    "/etc/pki/tls/certs/ca-bundle.crt",
+    "/etc/ssl/cert.pem"
+];
+
+$sslCa = null;
+
+foreach ($caPaths as $path) {
+    if (file_exists($path)) {
+        $sslCa = $path;
+        break;
+    }
+}
+
+if (!$sslCa) {
+    die("No se encontró un certificado CA válido en el servidor.");
+}
+
 try {
+    $opciones = [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        PDO::ATTR_TIMEOUT => 15
+    ];
+
+    // Activar conexión segura SSL/TLS para TiDB
+    if (defined('PDO::MYSQL_ATTR_SSL_CA')) {
+        $opciones[PDO::MYSQL_ATTR_SSL_CA] = $sslCa;
+    }
+
+    if (defined('PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT')) {
+        $opciones[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
+    }
+
     $conexion = new PDO(
         "mysql:host=$host;port=$puerto;dbname=$bd;charset=utf8mb4",
         $usuario,
-        $password
+        $password,
+        $opciones
     );
-
-    $conexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $conexion->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
 } catch (PDOException $e) {
     die("Error de conexión con host: " . $host . " puerto: " . $puerto . " base: " . $bd . " - " . $e->getMessage());
