@@ -1,6 +1,6 @@
 {
   "functions": {
-    "API/*.php": {
+    "api/*.php": {
       "runtime": "vercel-php@0.9.0"
     }
   },
@@ -8,7 +8,6 @@
     { "src": "/guardar.php", "dest": "/api/guardar.php" },
     { "src": "/actualizar.php", "dest": "/api/actualizar.php" },
     { "src": "/eliminar.php", "dest": "/api/eliminar.php" },
-    { "src": "/conexion.php", "dest": "/api/index.php" },
     { "src": "/(.*)", "dest": "/api/index.php" }
   ]
 }
